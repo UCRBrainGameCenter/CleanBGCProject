@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: e845ecafa5b19ca48b12264e7f4b08ad
+timeCreated: 1519944289
+ShaderImporter:
+  defaultTextures:
+  - _Envelope: {fileID: 2800000, guid: 55683f21cb2d6be48b243b24ee4111ab, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

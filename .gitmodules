@@ -1,0 +1,3 @@
+[submodule "Assets/Plugins/BGC_Tools"]
+	path = Assets/Plugins/BGC_Tools
+	url = https://github.com/UCRBrainGameCenter/BGC_Tools.git
