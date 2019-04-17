@@ -1,6 +1,6 @@
 # BGC_Tools Demo Project
 
-A simple project demonstrating some of the features of BGC_Tools
+A simple Unity project demonstrating some of the features of BGC_Tools
 
 ## Features
 
@@ -28,3 +28,7 @@ git submodule update
 ```
 
 Then open the project in Unity.
+
+### NOTE
+
+Run the SplashScreen scene at least once in order to properly initialize and expand some of the project files.
