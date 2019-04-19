@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using BGC.Users;
 using BGC.IO;
@@ -61,6 +60,13 @@ public class SystemInitializer : MonoBehaviour
 
     private static IEnumerator RunInitialization()
     {
+        //Unlock account for first-time users
+        if (!PlayerData.EverUnlocked)
+        {
+            Debug.LogWarning("First Run Detected - Unlocking for demo purposes");
+            PlayerData.IsLocked = false;
+        }
+
         try
         {
             Serialization.Initialize();
