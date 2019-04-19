@@ -9,6 +9,7 @@ using BGC.Web;
 using BGC.MonoUtility;
 using BGC.UI.Dialogs;
 using BGC.UI.Panels;
+using TestA;
 
 public class MenuManager : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private SettingsInnerPanel settingsMenu = null;
     [SerializeField]
-    private TestAPanel testAPanel = null;
+    private SettingsDemo testAPanel = null;
     [SerializeField]
     private TestBPanel testBPanel = null;
     [SerializeField]

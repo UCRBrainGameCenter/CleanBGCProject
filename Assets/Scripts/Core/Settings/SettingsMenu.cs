@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using BGC.Mathematics;
 using BGC.Users;
 using BGC.UI.Dialogs;
 using BGC.UI.Panels;
 using BGC.Study;
 
-
-// @enhancement
-// How To Get Into BGC_Tools: Have it read from a json file that defines 
-// {"key": {"type": "float...", ... and other fields related to the type}}
 public class SettingsMenu : ModePanel
 {
     [Header("Engine References")]
@@ -97,11 +94,24 @@ public class SettingsMenu : ModePanel
 
     public static class Keys
     {
-        //public const string StudyMode = "StudyMode";
-        //public const string ProtocolSet = "SM_ProtocolSet";
-        //public const string ProtocolId = "SM_ProtocolID";
         public const string LogLevel = "LogLevel";
-        public const string AutoAdvance = "AutoAdvance";
+
+        public const string PlayAnnoyingSound = "PlayAnnoyingSound";
+        public const string MessWithSettingsDemo = "MessWithSettingsDemo";
+
+        public const string ExampleOpenBoolean = "ExampleOpenBoolean";
+        public const string ExampleAdminBoolean = "ExampleAdminBoolean";
+        public const string ExampleLockedBoolean = "ExampleLockedBoolean";
+
+        public const string ExampleGlobalColor1 = "ExampleGlobalColor1";
+        public const string ExampleGlobalColor2 = "ExampleGlobalColor2";
+        public const string ExampleGlobalColor3 = "ExampleGlobalColor3";
+
+        public const string ExampleUserColor1 = "ExampleUserColor1";
+        public const string ExampleUserColor2 = "ExampleUserColor2";
+        public const string ExampleUserColor3 = "ExampleUserColor3";
+
+        public const string ExampleString = "ExampleString";
     }
 
     void Awake()
@@ -153,27 +163,38 @@ public class SettingsMenu : ModePanel
         containers = new List<SettingsSet>();
         containerWidgetMap = new Dictionary<string, SettingsSet>();
 
-        //PushBoolSetting(SettingScope.User, SettingProtection.Admin,
-        //    "Study Mode", Keys.StudyMode, true);
-
         PushIntSetting(SettingScope.User, SettingProtection.Admin,
-            "SM: Session Number", ProtocolManager.DataKeys.SessionNumber, 0,
-            //maskerName: Keys.StudyMode, maskingEvaluator: ShowOnMaskerTrue,
+            "Session Number", ProtocolManager.DataKeys.SessionNumber, 0,
             pushOnCopy: false);
 
-        //PushStringSetting(SettingScope.User, SettingProtection.Admin,
-        //    "SM: Protocol Set", Keys.ProtocolSet, "",
-        //    maskerName: Keys.StudyMode, maskingEvaluator: ShowOnMaskerTrue,
-        //    pushOnCopy: true);
+        PushBoolSetting(SettingScope.User, SettingProtection.Open,
+            "Settings Demo \"Music\"", Keys.PlayAnnoyingSound, true);
+        PushBoolSetting(SettingScope.User, SettingProtection.Open,
+            "Settings Demo \"Dynamic Menu\"", Keys.MessWithSettingsDemo, true);
 
-        //PushIntSetting(SettingScope.User, SettingProtection.Admin,
-        //    "SM: Protocol ID", Keys.ProtocolId, 1,
-        //    translator: ProtocolManager.GetProtocolName,
-        //    maskerName: Keys.StudyMode, maskingEvaluator: ShowOnMaskerTrue,
-        //    pushOnCopy: true);
-
+        PushBoolSetting(SettingScope.User, SettingProtection.Open,
+            "Example Open Bool Setting", Keys.ExampleOpenBoolean, false);
         PushBoolSetting(SettingScope.User, SettingProtection.Admin,
-            "Auto-Advance", Keys.AutoAdvance, false);
+            "Example Admin Bool Setting", Keys.ExampleAdminBoolean, false);
+        PushBoolSetting(SettingScope.User, SettingProtection.AlwaysLocked,
+            "Example Locked Bool Setting", Keys.ExampleLockedBoolean, true);
+
+        PushColorSetting(SettingScope.Global, SettingProtection.Open,
+            "Example Global Color #1", Keys.ExampleGlobalColor1, Color.cyan);
+        PushColorSetting(SettingScope.Global, SettingProtection.Open,
+            "Example Global Color #2", Keys.ExampleGlobalColor2, Color.magenta);
+        PushColorSetting(SettingScope.Global, SettingProtection.Open,
+            "Example Global Color #3", Keys.ExampleGlobalColor3, new Color(1f, 1f, 0f, 1f));
+
+        PushColorSetting(SettingScope.User, SettingProtection.Open,
+            "Example User Color Setting #1", Keys.ExampleUserColor1, Color.red);
+        PushColorSetting(SettingScope.User, SettingProtection.Open,
+            "Example User Color Setting #2", Keys.ExampleUserColor2, Color.green);
+        PushColorSetting(SettingScope.User, SettingProtection.Open,
+            "Example User Color Setting #3", Keys.ExampleUserColor3, Color.blue);
+
+        PushStringSetting(SettingScope.User, SettingProtection.Open,
+            "Example String Setting", Keys.ExampleString, "Initial Value");
 
         PushIntSetting(SettingScope.Global, SettingProtection.Admin,
             "Error Logging Level", Keys.LogLevel, (int)LogManager.LogLevel.Errors,
@@ -182,12 +203,8 @@ public class SettingsMenu : ModePanel
             dropdown: true);
     }
 
-    private static bool ShowOnMaskerTrue(SettingBase maskerSetting)
-    {
-        BoolSetting boolSetting = maskerSetting as BoolSetting;
-
-        return boolSetting.GetCurrentValue();
-    }
+    private static bool ShowOnMaskerTrue(SettingBase maskerSetting) =>
+        (maskerSetting as BooleanSetting).GetCurrentValue();
 
     public static bool GetSettingBool(string key)
     {
@@ -207,7 +224,7 @@ public class SettingsMenu : ModePanel
             return false;
         }
 
-        return ((BoolSetting)setting).GetInnerValue();
+        return ((BooleanSetting)setting).GetInnerValue();
     }
 
     public static int GetSettingInt(string key)
@@ -228,7 +245,7 @@ public class SettingsMenu : ModePanel
             return 0;
         }
 
-        return ((IntSetting)setting).GetInnerValue();
+        return ((IntegerSetting)setting).GetInnerValue();
     }
 
     public static float GetSettingFloat(string key)
@@ -270,7 +287,28 @@ public class SettingsMenu : ModePanel
             return "";
         }
 
-        return ((StrSetting)setting).GetInnerValue();
+        return ((StringSetting)setting).GetInnerValue();
+    }
+
+    public static Color GetSettingColor(string key)
+    {
+        InitCheck();
+
+        if (!nameSettingsMap.ContainsKey(key))
+        {
+            Debug.LogError($"Requested a setting that doesn't exist: {key}");
+            return Color.white;
+        }
+
+        SettingBase setting = nameSettingsMap[key];
+
+        if (setting.SettingType != SettingType.Color)
+        {
+            Debug.LogError($"Used the wrong SettingType for setting.\tExpected: {SettingType.Color}\tReceived: {setting.SettingType}");
+            return Color.white;
+        }
+
+        return ((SettingColorSetting)setting).GetInnerValue();
     }
 
     private static void InitCheck()
@@ -297,41 +335,37 @@ public class SettingsMenu : ModePanel
         switch (currentState)
         {
             case UIState.EnterValue:
+                string newValue = valueField.text;
+
+                //Abort if the name is bad
+                if (newValue.CompareTo("") == 0)
                 {
-                    string newValue = valueField.text;
-
-                    //Abort if the name is bad
-                    if (newValue.CompareTo("") == 0)
-                    {
-                        Debug.Log("Tried to submit an empty value");
-                        CancelAction();
-                        return;
-                    }
-
-                    //Use newValue
-                    if (currentlyEditingValue.TryValue(ref newValue))
-                    {
-                        success = true;
-                    }
-                    else
-                    {
-                        //Update codefield text
-                        valueField.text = newValue;
-
-                        //Highlight codefield
-                        EventSystem.current.SetSelectedGameObject(valueField.gameObject, null);
-                        valueField.OnPointerClick(new PointerEventData(EventSystem.current));
-                    }
-
+                    Debug.Log("Tried to submit an empty value");
+                    CancelAction();
+                    return;
                 }
-                break;
-            case UIState.SelectValue:
+
+                //Use newValue
+                if (currentlyEditingValue.TryValue(ref newValue))
                 {
-                    currentlyEditingValue.SetValueFromDropdown(valueDropdown.value);
                     success = true;
                 }
+                else
+                {
+                    //Update codefield text
+                    valueField.text = newValue;
+
+                    //Highlight codefield
+                    EventSystem.current.SetSelectedGameObject(valueField.gameObject, null);
+                    valueField.OnPointerClick(new PointerEventData(EventSystem.current));
+                }
                 break;
-            case UIState.SettingsMenu:
+
+            case UIState.SelectValue:
+                currentlyEditingValue.SetValueFromDropdown(valueDropdown.value);
+                success = true;
+                break;
+
             default:
                 Debug.LogError($"Unexpected UIState: {currentState}");
                 return;
@@ -361,28 +395,27 @@ public class SettingsMenu : ModePanel
             case UIState.SettingsMenu:
                 //Do nothing special
                 break;
+
             case UIState.EnterValue:
-                {
-                    currentlyEditingValue = editSetting;
-                    currentlyEditingValueTitle = editSetting.label;
+                currentlyEditingValue = editSetting;
+                currentlyEditingValueTitle = editSetting.label;
 
-                    valueField.text = editSetting.GetValue();
+                valueField.text = editSetting.GetValue();
 
-                    //Set Focus
-                    EventSystem.current.SetSelectedGameObject(valueField.gameObject, null);
-                    valueField.OnPointerClick(new PointerEventData(EventSystem.current));
-                }
+                //Set Focus
+                EventSystem.current.SetSelectedGameObject(valueField.gameObject, null);
+                valueField.OnPointerClick(new PointerEventData(EventSystem.current));
                 break;
+
             case UIState.SelectValue:
-                {
-                    currentlyEditingValue = editSetting;
+                currentlyEditingValue = editSetting;
 
-                    valueDropdown.ClearOptions();
-                    valueDropdown.AddOptions(editSetting.GetValueList());
-                    valueDropdown.value = ((IntSetting)editSetting).GetCurrentValue();
-                    valueDropdown.RefreshShownValue();
-                }
+                valueDropdown.ClearOptions();
+                valueDropdown.AddOptions(editSetting.GetValueList());
+                valueDropdown.value = ((IntegerSetting)editSetting).GetCurrentValue();
+                valueDropdown.RefreshShownValue();
                 break;
+
             default:
                 break;
         }
@@ -485,75 +518,6 @@ public class SettingsMenu : ModePanel
 
         PlayerData.Save();
 
-        // Left behind to demonstrate StudyMode and Protocols
-        //
-        //if (GetSettingBool(Keys.StudyMode))
-        //{
-        //    ProtocolStatus status = ProtocolManager.TryUpdateProtocol(
-        //        protocolName: GetSettingString(Keys.ProtocolSet),
-        //        protocolID: GetSettingInt(Keys.ProtocolId),
-        //        sessionIndex: ProtocolManager.SessionNumber,
-        //        sessionElementIndex: ProtocolManager.ElementNumber);
-
-        //    switch (status)
-        //    {
-        //        case ProtocolStatus.Uninitialized:
-        //            Debug.Log("Uninitialized");
-
-        //            ModalDialog.ShowSimpleModal(ModalDialog.Mode.Accept,
-        //                headerText: "Protocol Failure",
-        //                bodyText: $"Failed to load or locate protocol set \"{GetSettingString(Keys.ProtocolSet)}\".  " +
-        //                    $"Change to valid value, like \"DefaultSet\", before proceeding.");
-        //            break;
-
-        //        case ProtocolStatus.InvalidProtocol:
-        //            Debug.Log("InvalidProtocol");
-
-        //            ModalDialog.ShowSimpleModal(ModalDialog.Mode.Accept,
-        //                headerText: "Protocol Failure",
-        //                bodyText: $"Invalid protocolID \"{GetSettingInt(Keys.ProtocolId)}\".\n\n" +
-        //                    $"Change to a valid value before proceeding.");
-        //            break;
-
-        //        case ProtocolStatus.SessionLimitExceeded:
-        //            Debug.Log("SessionLimitExceeded");
-
-        //            ModalDialog.ShowSimpleModal(ModalDialog.Mode.Accept,
-        //                headerText: "Protocol Failure",
-        //                bodyText: "Previous session progress too advanced.  Resetting to beginning of study.");
-
-        //            ProtocolManager.TryUpdateProtocol(
-        //                protocolName: GetSettingString(Keys.ProtocolSet),
-        //                protocolID: GetSettingInt(Keys.ProtocolId),
-        //                sessionIndex: 0,
-        //                sessionElementIndex: 0);
-        //            break;
-
-        //        case ProtocolStatus.SessionElementLimitExceeded:
-        //            Debug.Log("SessionElementLimitExceeded");
-
-        //            ModalDialog.ShowSimpleModal(ModalDialog.Mode.Accept,
-        //                headerText: "Protocol Failure",
-        //                bodyText: "Previous session progress too advanced.  Resetting to beginning of session.");
-
-        //            ProtocolManager.TryUpdateProtocol(
-        //                protocolName: GetSettingString(Keys.ProtocolSet),
-        //                protocolID: GetSettingInt(Keys.ProtocolId),
-        //                sessionIndex: ProtocolManager.SessionNumber,
-        //                sessionElementIndex: 0);
-        //            break;
-
-        //        case ProtocolStatus.SessionReady:
-        //            //No errors
-        //            break;
-
-        //        case ProtocolStatus.SessionFinished:
-        //        default:
-        //            Debug.LogError($"Unexpected ProtocolStatus: {status}");
-        //            break;
-        //    }
-        //}
-
         //Reload the screen
         ShowUIState(UIState.SettingsMenu);
     }
@@ -563,18 +527,20 @@ public class SettingsMenu : ModePanel
         if (settingDirty)
         {
             ModalDialog.ShowSimpleModal(ModalDialog.Mode.ConfirmCancel,
-                "Discard Changes?",
-                "Are you sure you want to discard your changes and return to the Menu?",
-                (ModalDialog.Response response) =>
+                headerText: "Discard Changes?",
+                bodyText: "Are you sure you want to discard your changes and return to the Menu?",
+                callback: (ModalDialog.Response response) =>
                 {
                     switch (response)
                     {
                         case ModalDialog.Response.Confirm:
                             CancelChanges();
                             break;
+
                         case ModalDialog.Response.Cancel:
                             //Do Nothing
                             break;
+
                         default:
                             Debug.LogError($"Unexpected ModalDialog.Response: {response}");
                             break;
@@ -631,13 +597,13 @@ public class SettingsMenu : ModePanel
         Func<SettingBase, bool> maskingEvaluator = null,
         bool pushOnCopy = true)
     {
-        SettingBase newSetting = new BoolSetting(
-            scope,
-            protectionLevel,
-            label,
-            name,
-            defaultVal,
-            pushOnCopy);
+        SettingBase newSetting = new BooleanSetting(
+            scope: scope,
+            protectionLevel: protectionLevel,
+            label: label,
+            name: name,
+            defaultVal: defaultVal,
+            pushOnCopy: pushOnCopy);
 
         settings.Add(newSetting);
         nameSettingsMap.Add(name, newSetting);
@@ -663,17 +629,44 @@ public class SettingsMenu : ModePanel
         bool pushOnCopy = true,
         bool dropdown = false)
     {
-        SettingBase newSetting = new IntSetting(
-            scope,
-            protectionLevel,
-            label,
-            name,
-            defaultVal,
+        SettingBase newSetting = new IntegerSetting(
+            scope: scope,
+            protectionLevel: protectionLevel,
+            label: label,
+            name: name,
+            defaultVal: defaultVal,
             minVal: minVal,
             maxVal: maxVal,
             translator: translator,
             dropdown: dropdown,
             postFix: postFix,
+            pushOnCopy: pushOnCopy);
+
+        settings.Add(newSetting);
+        nameSettingsMap.Add(name, newSetting);
+
+        if (maskerName != "")
+        {
+            AddToMaskerMap(maskerName, name, maskingEvaluator);
+        }
+    }
+
+    private static void PushColorSetting(
+        SettingScope scope,
+        SettingProtection protectionLevel,
+        string label,
+        string name,
+        Color defaultVal,
+        string maskerName = "",
+        Func<SettingBase, bool> maskingEvaluator = null,
+        bool pushOnCopy = true)
+    {
+        SettingBase newSetting = new SettingColorSetting(
+            scope: scope,
+            protectionLevel: protectionLevel,
+            label: label,
+            name: name,
+            defaultVal: defaultVal,
             pushOnCopy: pushOnCopy);
 
         settings.Add(newSetting);
@@ -707,13 +700,13 @@ public class SettingsMenu : ModePanel
         Func<SettingBase, bool> maskingEvaluator = null,
         bool pushOnCopy = true)
     {
-        SettingBase newSetting = new StrSetting(
-            scope,
-            protectionLevel,
-            label,
-            name,
-            defaultVal,
-            pushOnCopy);
+        SettingBase newSetting = new StringSetting(
+            scope: scope,
+            protectionLevel: protectionLevel,
+            label: label,
+            name: name,
+            defaultVal: defaultVal,
+            pushOnCopy: pushOnCopy);
 
         settings.Add(newSetting);
         nameSettingsMap.Add(name, newSetting);
@@ -739,11 +732,11 @@ public class SettingsMenu : ModePanel
         bool pushOnCopy = true)
     {
         SettingBase newSetting = new FloatSetting(
-            scope,
-            protectionLevel,
-            label,
-            name,
-            defaultVal,
+            scope: scope,
+            protectionLevel: protectionLevel,
+            label: label,
+            name: name,
+            defaultVal: defaultVal,
             minVal: minVal,
             maxVal: maxVal,
             translator: translator,
@@ -761,14 +754,8 @@ public class SettingsMenu : ModePanel
 
     private void CreateAndLinkButton(SettingBase setting)
     {
-        Transform parent;
-
-        parent = settingsWidgetArea.transform;
-
-        setting.CreateSettingWidget(parent, this);
-
+        setting.CreateSettingWidget(settingsWidgetArea.transform, this);
         setting.SettingModifyButton.onClick.AddListener(() => { EditValue(setting); });
-
         setting.ApplyValuesToButton();
     }
 
@@ -933,12 +920,10 @@ public class SettingsMenu : ModePanel
         {
             switch (protectionLevel)
             {
-                case SettingProtection.Open:
-                    return true;
-                case SettingProtection.Admin:
-                    return !locked;
-                case SettingProtection.AlwaysLocked:
-                    return false;
+                case SettingProtection.Open: return true;
+                case SettingProtection.Admin: return !locked;
+                case SettingProtection.AlwaysLocked: return false;
+
                 default:
                     Debug.LogError($"Unexpected protectionLevel: {protectionLevel}");
                     return false;
@@ -946,8 +931,7 @@ public class SettingsMenu : ModePanel
         }
     };
 
-
-    public class IntSetting : SettingBase
+    public class IntegerSetting : SettingBase
     {
         public int defaultVal;
 
@@ -961,7 +945,7 @@ public class SettingsMenu : ModePanel
 
         public override SettingType SettingType => SettingType.Integer;
 
-        public IntSetting(
+        public IntegerSetting(
             SettingScope scope,
             SettingProtection protectionLevel,
             string label,
@@ -974,11 +958,11 @@ public class SettingsMenu : ModePanel
             bool dropdown = false,
             bool pushOnCopy = true)
             : base(
-                  scope,
-                  protectionLevel,
-                  label,
-                  name,
-                  pushOnCopy)
+                scope: scope,
+                protectionLevel: protectionLevel,
+                label: label,
+                name: name,
+                pushOnCopy: pushOnCopy)
         {
             this.defaultVal = defaultVal;
 
@@ -1046,7 +1030,8 @@ public class SettingsMenu : ModePanel
             nameDirty = true;
         }
 
-        public override UIState EditButtonPressed() => dropdown ? UIState.SelectValue : UIState.EnterValue;
+        public override UIState EditButtonPressed() => 
+            dropdown ? UIState.SelectValue : UIState.EnterValue;
 
         public override string GetValue()
         {
@@ -1070,21 +1055,24 @@ public class SettingsMenu : ModePanel
 
         public int GetInnerValue()
         {
-            int returnVal = defaultVal;
+            int returnVal;
             switch (scope)
             {
                 case SettingScope.Global:
                     returnVal = PlayerPrefs.GetInt(name, defaultVal);
                     break;
+
                 case SettingScope.User:
                     returnVal = PlayerData.GetInt(name, defaultVal);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
+                    returnVal = defaultVal;
                     break;
             }
 
-            return Mathf.Clamp(returnVal, minVal, maxVal);
+            return GeneralMath.Clamp(returnVal, minVal, maxVal);
         }
 
         private void SetInnerValue(int newValue)
@@ -1094,9 +1082,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     PlayerPrefs.SetInt(name, newValue);
                     break;
+
                 case SettingScope.User:
                     PlayerData.SetInt(name, newValue);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1110,9 +1100,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     Debug.LogError("Tried to pull a global setting");
                     return;
+
                 case SettingScope.User:
                     PlayerData.SetInt(name, PlayerData.DefaultData.GetInt(name, defaultVal));
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1139,7 +1131,7 @@ public class SettingsMenu : ModePanel
                 else
                 {
                     //Failed bounds check
-                    result = Mathf.Clamp(result, minVal, maxVal);
+                    result = GeneralMath.Clamp(result, minVal, maxVal);
                     //Update value string
                     newValue = result.ToString();
                     return false;
@@ -1191,11 +1183,11 @@ public class SettingsMenu : ModePanel
             string postFix = "",
             bool pushOnCopy = true)
             : base(
-                  scope,
-                  protectionLevel,
-                  label,
-                  name,
-                  pushOnCopy)
+                scope: scope,
+                protectionLevel: protectionLevel,
+                label: label,
+                name: name,
+                pushOnCopy: pushOnCopy)
         {
             this.defaultVal = defaultVal;
 
@@ -1237,21 +1229,24 @@ public class SettingsMenu : ModePanel
 
         public float GetInnerValue()
         {
-            float returnValue = defaultVal;
+            float returnValue;
             switch (scope)
             {
                 case SettingScope.Global:
                     returnValue = PlayerPrefs.GetFloat(name, defaultVal);
                     break;
+
                 case SettingScope.User:
                     returnValue = PlayerData.GetFloat(name, defaultVal);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
+                    returnValue = defaultVal;
                     break;
             }
 
-            return Mathf.Clamp(returnValue, minVal, maxVal);
+            return GeneralMath.Clamp(returnValue, minVal, maxVal);
         }
 
         private void SetInnerValue(float newValue)
@@ -1261,9 +1256,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     PlayerPrefs.SetFloat(name, newValue);
                     break;
+
                 case SettingScope.User:
                     PlayerData.SetFloat(name, newValue);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1277,9 +1274,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     Debug.LogError("Tried to pull a global setting");
                     return;
+
                 case SettingScope.User:
                     PlayerData.SetFloat(name, PlayerData.DefaultData.GetFloat(name, defaultVal));
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1306,14 +1305,14 @@ public class SettingsMenu : ModePanel
                 else
                 {
                     //Failed bounds check
-                    result = Mathf.Clamp(result, minVal, maxVal);
+                    result = GeneralMath.Clamp(result, minVal, maxVal);
                     //Update value string
                     newValue = result.ToString();
                     return false;
                 }
             }
 
-            //failed to parse
+            //Failed to parse
             return false;
         }
 
@@ -1334,11 +1333,11 @@ public class SettingsMenu : ModePanel
         }
     };
 
-    public class StrSetting : SettingBase
+    public class StringSetting : SettingBase
     {
         public override SettingType SettingType => SettingType.String;
 
-        public StrSetting(
+        public StringSetting(
             SettingScope scope,
             SettingProtection protectionLevel,
             string label,
@@ -1346,11 +1345,11 @@ public class SettingsMenu : ModePanel
             string defaultVal = "",
             bool pushOnCopy = true)
             : base(
-                  scope,
-                  protectionLevel,
-                  label,
-                  name,
-                  pushOnCopy)
+                scope: scope,
+                protectionLevel: protectionLevel,
+                label: label,
+                name: name,
+                pushOnCopy: pushOnCopy)
         {
             this.defaultVal = defaultVal;
         }
@@ -1369,10 +1368,7 @@ public class SettingsMenu : ModePanel
             return val;
         }
 
-        public override UIState EditButtonPressed()
-        {
-            return UIState.EnterValue;
-        }
+        public override UIState EditButtonPressed() => UIState.EnterValue;
 
         public override string GetValue()
         {
@@ -1380,20 +1376,17 @@ public class SettingsMenu : ModePanel
             {
                 return tmpNewValue;
             }
-            else
-            {
-                return GetInnerValue();
-            }
+
+            return GetInnerValue();
         }
 
         public string GetInnerValue()
         {
             switch (scope)
             {
-                case SettingScope.Global:
-                    return PlayerPrefs.GetString(name, defaultVal);
-                case SettingScope.User:
-                    return PlayerData.GetString(name, defaultVal);
+                case SettingScope.Global: return PlayerPrefs.GetString(name, defaultVal);
+                case SettingScope.User: return PlayerData.GetString(name, defaultVal);
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     return defaultVal;
@@ -1407,9 +1400,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     PlayerPrefs.SetString(name, newValue);
                     break;
+
                 case SettingScope.User:
                     PlayerData.SetString(name, newValue);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1423,9 +1418,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     Debug.LogError("Tried to pull a global setting");
                     return;
+
                 case SettingScope.User:
                     PlayerData.SetString(name, PlayerData.DefaultData.GetString(name, defaultVal));
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1475,18 +1472,15 @@ public class SettingsMenu : ModePanel
             string name,
             bool pushOnCopy = true)
             : base(
-                  scope,
-                  protectionLevel,
-                  label,
-                  name,
-                  pushOnCopy)
+                scope: scope,
+                protectionLevel: protectionLevel,
+                label: label,
+                name: name,
+                pushOnCopy: pushOnCopy)
         {
         }
 
-        public override string GetValueLabel()
-        {
-            return GetValue();
-        }
+        public override string GetValueLabel() => GetValue();
 
         public override UIState EditButtonPressed() => UIState.EnterValue;
 
@@ -1496,10 +1490,8 @@ public class SettingsMenu : ModePanel
             {
                 return tmpNewValue;
             }
-            else
-            {
-                return $"#{ColorUtility.ToHtmlStringRGBA(GetInnerValue())}";
-            }
+
+            return $"#{ColorUtility.ToHtmlStringRGBA(GetInnerValue())}";
         }
 
         public abstract Color GetInnerValue();
@@ -1512,7 +1504,6 @@ public class SettingsMenu : ModePanel
             {
                 newValue.Insert(0, "#");
             }
-
 
             if (!ColorUtility.TryParseHtmlString(newValue, out Color tmpColor))
             {
@@ -1566,10 +1557,7 @@ public class SettingsMenu : ModePanel
             return GetInnerValue();
         }
 
-        protected override void SupplementaryValueUpdate()
-        {
-            colorWidget.SetColor(GetCurrentColor());
-        }
+        protected override void SupplementaryValueUpdate() => colorWidget.SetColor(GetCurrentColor());
     };
 
     public class SettingColorSetting : ColorSetting
@@ -1585,27 +1573,30 @@ public class SettingsMenu : ModePanel
             string name,
             Color defaultVal,
             bool pushOnCopy = true)
-            : base(scope,
-                   protectionLevel,
-                   label,
-                   name,
-                   pushOnCopy)
+            : base(
+                scope: scope,
+                protectionLevel: protectionLevel,
+                label: label,
+                name: name,
+                pushOnCopy: pushOnCopy)
         {
             this.defaultVal = defaultVal;
         }
 
         public override Color GetInnerValue()
         {
-            string colorString = "";
+            string colorString;
 
             switch (scope)
             {
                 case SettingScope.Global:
                     colorString = PlayerPrefs.GetString(name, "");
                     break;
+
                 case SettingScope.User:
                     colorString = PlayerData.GetString(name, "");
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     return defaultVal;
@@ -1615,7 +1606,6 @@ public class SettingsMenu : ModePanel
             {
                 return defaultVal;
             }
-
 
             if (ColorUtility.TryParseHtmlString(colorString, out Color parsedColor))
             {
@@ -1632,9 +1622,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     PlayerPrefs.SetString(name, newValue);
                     break;
+
                 case SettingScope.User:
                     PlayerData.SetString(name, newValue);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1648,11 +1640,12 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     Debug.LogError("Tried to pull a global setting");
                     return;
+
                 case SettingScope.User:
-                    PlayerData.SetString(name,
-                        PlayerData.DefaultData.GetString(
-                            name, $"#{ColorUtility.ToHtmlStringRGBA(defaultVal)}"));
+                    string newValue = PlayerData.DefaultData.GetString(name, $"#{ColorUtility.ToHtmlStringRGBA(defaultVal)}");
+                    PlayerData.SetString(name, newValue);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1660,11 +1653,11 @@ public class SettingsMenu : ModePanel
         }
     }
 
-    public class BoolSetting : SettingBase
+    public class BooleanSetting : SettingBase
     {
         public override SettingType SettingType => SettingType.Boolean;
 
-        public BoolSetting(
+        public BooleanSetting(
             SettingScope scope,
             SettingProtection protectionLevel,
             string label,
@@ -1672,11 +1665,11 @@ public class SettingsMenu : ModePanel
             bool defaultVal = false,
             bool pushOnCopy = true)
             : base(
-                  scope,
-                  protectionLevel,
-                  label,
-                  name,
-                  pushOnCopy)
+                scope: scope,
+                protectionLevel: protectionLevel,
+                label: label,
+                name: name,
+                pushOnCopy: pushOnCopy)
         {
             this.defaultVal = defaultVal;
         }
@@ -1692,7 +1685,7 @@ public class SettingsMenu : ModePanel
                 val = bool.Parse(tmpNewValue);
             }
 
-            return (val ? "True" : "False");
+            return val ? "True" : "False";
         }
 
         public override UIState EditButtonPressed()
@@ -1713,10 +1706,7 @@ public class SettingsMenu : ModePanel
             return UIState.SettingsMenu;
         }
 
-        public override string GetValue()
-        {
-            return GetValueLabel();
-        }
+        public override string GetValue() => GetValueLabel();
 
         public bool GetCurrentValue()
         {
@@ -1732,10 +1722,9 @@ public class SettingsMenu : ModePanel
         {
             switch (scope)
             {
-                case SettingScope.Global:
-                    return ((PlayerPrefs.GetInt(name, defaultVal ? 1 : 0)) != 0);
-                case SettingScope.User:
-                    return PlayerData.GetBool(name, defaultVal);
+                case SettingScope.Global: return PlayerPrefs.GetInt(name, defaultVal ? 1 : 0) != 0;
+                case SettingScope.User: return PlayerData.GetBool(name, defaultVal);
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     return defaultVal;
@@ -1747,11 +1736,13 @@ public class SettingsMenu : ModePanel
             switch (scope)
             {
                 case SettingScope.Global:
-                    PlayerPrefs.SetInt(name, (newValue ? 1 : 0));
+                    PlayerPrefs.SetInt(name, newValue ? 1 : 0);
                     break;
+
                 case SettingScope.User:
                     PlayerData.SetBool(name, newValue);
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;
@@ -1765,9 +1756,11 @@ public class SettingsMenu : ModePanel
                 case SettingScope.Global:
                     Debug.LogError("Tried to pull a global setting");
                     return;
+
                 case SettingScope.User:
                     PlayerData.SetBool(name, PlayerData.DefaultData.GetBool(name, defaultVal));
                     break;
+
                 default:
                     Debug.LogError($"Unexpected SettingScope: {scope}");
                     break;

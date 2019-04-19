@@ -28,14 +28,14 @@ public class SettingsInnerPanel : ModePanel
     [SerializeField]
     private Button lockButton = null;
 
-    private Color selectedButtonColor => Color.black;
-    private Color selectedTextColor => Color.white;
-    private Color enabledButtonColor => Color.gray;
-    private Color enabledTextColor => Color.white;
-    private Color disabledButtonColor => Color.gray;
-    private Color disabledTextColor => Color.black;
-    private Color highlightButtonColor => Color.green;
-    private Color highlightTextColor => Color.black;
+    private Color SelectedButtonColor => Color.black;
+    private Color SelectedTextColor => Color.white;
+    private Color EnabledButtonColor => Color.gray;
+    private Color EnabledTextColor => Color.white;
+    private Color DisabledButtonColor => Color.gray;
+    private Color DisabledTextColor => Color.black;
+    private Color HighlightButtonColor => Color.green;
+    private Color HighlightTextColor => Color.black;
 
     protected enum SettingPanelMode
     {
@@ -55,23 +55,13 @@ public class SettingsInnerPanel : ModePanel
     }
 
     protected SettingPanelMode currentMode;
-
     protected bool requestedLockInteractivity = true;
-
     protected bool flashOn = false;
 
     void Awake()
     {
-        generalSettingsButton.onClick.AddListener(() =>
-        {
-            TabButtonClicked(SettingPanelMode.General);
-        });
-
-        userSelectButton.onClick.AddListener(() =>
-        {
-            TabButtonClicked(SettingPanelMode.UserSelect);
-        });
-
+        generalSettingsButton.onClick.AddListener(() => TabButtonClicked(SettingPanelMode.General));
+        userSelectButton.onClick.AddListener(() => TabButtonClicked(SettingPanelMode.UserSelect));
         lockButton.onClick.AddListener(LockPressed);
     }
 
@@ -94,10 +84,7 @@ public class SettingsInnerPanel : ModePanel
         }
     }
 
-    public override void FocusLost()
-    {
-        //Do Nothing
-    }
+    public override void FocusLost() { }
 
     #endregion ModePanel
 
@@ -108,7 +95,9 @@ public class SettingsInnerPanel : ModePanel
             ModalDialog.ShowInputModal(
                 mode: ModalDialog.Mode.InputConfirmCancel,
                 headerText: "Enter Code",
-                bodyText: "Enter the unlock code.\n\nNote: This enables experimental features.",
+                bodyText: "Enter the unlock code.\n\n" +
+                    "Note: This enables experimental features.\n" +
+                    "The Code is 3141",
                 inputCallback: LockSubmit);
         }
         else
@@ -120,10 +109,11 @@ public class SettingsInnerPanel : ModePanel
                 case SettingPanelMode.General:
                     generalSettingsMenu.LockStateChanged();
                     break;
+
                 case SettingPanelMode.UserSelect:
                     userIDMenu.LockStateChanged();
                     break;
-                case SettingPanelMode.MAX:
+
                 default:
                     Debug.LogError($"Unexpected mode: {currentMode}");
                     break;
@@ -138,7 +128,7 @@ public class SettingsInnerPanel : ModePanel
         switch (response)
         {
             case ModalDialog.Response.Confirm:
-                if (input =="3141")
+                if (input == "3141")
                 {
                     PlayerData.IsLocked = false;
                 }
@@ -150,10 +140,11 @@ public class SettingsInnerPanel : ModePanel
                         bodyText: "The entered code was incorrect.");
                 }
                 break;
+
             case ModalDialog.Response.Cancel:
                 //Do nothing
                 break;
-            case ModalDialog.Response.Accept:
+
             default:
                 Debug.LogError($"Unexpected ModalDialog.Response: {response}");
                 break;
@@ -164,10 +155,11 @@ public class SettingsInnerPanel : ModePanel
             case SettingPanelMode.General:
                 generalSettingsMenu.LockStateChanged();
                 break;
+
             case SettingPanelMode.UserSelect:
                 userIDMenu.LockStateChanged();
                 break;
-            case SettingPanelMode.MAX:
+
             default:
                 Debug.LogError($"Unexpected mode: {currentMode}");
                 break;
@@ -185,12 +177,13 @@ public class SettingsInnerPanel : ModePanel
             case SettingPanelMode.General:
                 settingsPanelManager.SetPanelActive(generalSettingsMenu);
                 break;
+
             case SettingPanelMode.UserSelect:
                 settingsPanelManager.SetPanelActive(userIDMenu);
                 break;
-            case SettingPanelMode.MAX:
+
             default:
-                Debug.LogError($"Unexpected mode: {mode}");
+                Debug.LogError($"Unexpected SettingPanelMode: {mode}");
                 break;
         }
     }
@@ -198,7 +191,7 @@ public class SettingsInnerPanel : ModePanel
     protected void UpdateUIForMode(SettingPanelMode mode)
     {
         currentMode = mode;
-        
+
         lockButton.GetComponentInChildren<Text>().text = PlayerData.IsLocked ? "Unlock" : "Lock";
 
         lockButton.interactable =
@@ -221,15 +214,17 @@ public class SettingsInnerPanel : ModePanel
                 button.gameObject.SetActive(true);
                 button.interactable = true;
                 break;
+
             case TabButtonState.Disabled:
             case TabButtonState.Selected:
                 button.gameObject.SetActive(true);
                 button.interactable = false;
                 break;
+
             case TabButtonState.Hidden:
                 button.gameObject.SetActive(false);
                 break;
-            case TabButtonState.MAX:
+
             default:
                 Debug.LogError($"Unexpected TabButtonState: {state}");
                 break;
@@ -249,17 +244,16 @@ public class SettingsInnerPanel : ModePanel
 
         switch (button)
         {
-            case SettingPanelMode.General: return TabButtonState.Enabled;
-            case SettingPanelMode.UserSelect:
-                {
-                    if (PlayerData.IsDefault || !PlayerData.IsLocked)
-                    {
-                        return flashOn ? TabButtonState.Flashing : TabButtonState.Enabled;
-                    }
+            case SettingPanelMode.General:
+                return TabButtonState.Enabled;
 
-                    return TabButtonState.Disabled;
+            case SettingPanelMode.UserSelect:
+                if (PlayerData.IsDefault || !PlayerData.IsLocked)
+                {
+                    return flashOn ? TabButtonState.Flashing : TabButtonState.Enabled;
                 }
-            case SettingPanelMode.MAX:
+                return TabButtonState.Disabled;
+
             default:
                 Debug.LogError($"Unexpected SettingPanelMode: {button}");
                 return TabButtonState.Enabled;
@@ -270,15 +264,16 @@ public class SettingsInnerPanel : ModePanel
     {
         switch (state)
         {
-            case TabButtonState.Selected: return selectedButtonColor;
-            case TabButtonState.Enabled: return enabledButtonColor;
+            case TabButtonState.Selected: return SelectedButtonColor;
+            case TabButtonState.Enabled: return EnabledButtonColor;
+
             case TabButtonState.Disabled:
-            case TabButtonState.Hidden: return disabledButtonColor;
-            case TabButtonState.Flashing: return highlightButtonColor;
-            case TabButtonState.MAX:
+            case TabButtonState.Hidden: return DisabledButtonColor;
+            case TabButtonState.Flashing: return HighlightButtonColor;
+
             default:
                 Debug.LogError($"Unexpected TabButtonState: {state}");
-                return enabledButtonColor;
+                return EnabledButtonColor;
         }
     }
 
@@ -286,15 +281,16 @@ public class SettingsInnerPanel : ModePanel
     {
         switch (state)
         {
-            case TabButtonState.Selected: return selectedTextColor;
-            case TabButtonState.Enabled: return enabledTextColor;
-            case TabButtonState.Flashing: return highlightTextColor;
+            case TabButtonState.Selected: return SelectedTextColor;
+            case TabButtonState.Enabled: return EnabledTextColor;
+            case TabButtonState.Flashing: return HighlightTextColor;
+
             case TabButtonState.Hidden:
-            case TabButtonState.Disabled: return disabledTextColor;
-            case TabButtonState.MAX:
+            case TabButtonState.Disabled: return DisabledTextColor;
+
             default:
                 Debug.LogError($"Unexpected TabButtonState: {state}");
-                return enabledButtonColor;
+                return EnabledButtonColor;
         }
     }
 
@@ -313,8 +309,8 @@ public class SettingsInnerPanel : ModePanel
             flashOn = true;
             if (GetButtonState(SettingPanelMode.UserSelect) != TabButtonState.Selected)
             {
-                userSelectButton.GetComponent<Image>().color = highlightButtonColor;
-                userSelectButton.GetComponentInChildren<Text>().color = highlightTextColor;
+                userSelectButton.GetComponent<Image>().color = HighlightButtonColor;
+                userSelectButton.GetComponentInChildren<Text>().color = HighlightTextColor;
             }
             yield return new WaitForSeconds(0.75f);
         }

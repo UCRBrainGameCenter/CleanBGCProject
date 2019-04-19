@@ -1,10 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using LightJson;
-using BGC.Utility;
-using BGC.Users;
 
 public class LogManager
 {
@@ -25,29 +20,14 @@ public class LogManager
 
     #region Helper Properties
 
-
     //Exception Log
     private static LocalLogger ExceptionLog => _exceptionLog ?? (_exceptionLog = new LocalLogger("Exceptions", "Exception"));
 
     #endregion Helper Properties
 
-    public static void LogClick(
-        int id,
-        ObjectType type,
-        float x,
-        float y,
-        bool validClick)
-    {
-        //Dummy function to demonstrate functionality
-    }
-
-    public static void ClearElementLogs()
-    {
-    }
-
     public static void ClearAllLogs()
     {
-        ClearElementLogs();
+        //Left for reference
     }
 
     #region Error Logging
