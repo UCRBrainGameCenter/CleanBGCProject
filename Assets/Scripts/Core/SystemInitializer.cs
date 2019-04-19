@@ -60,6 +60,14 @@ public class SystemInitializer : MonoBehaviour
 
     private static IEnumerator RunInitialization()
     {
+#if !UNITY_EDITOR
+        if (Screen.fullScreen)
+        {
+            Debug.Log("Changing application to Windowed mode");
+            Screen.SetResolution(1920, 1080, false);
+        }
+#endif
+
         //Unlock account for first-time users
         if (!PlayerData.EverUnlocked)
         {
