@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using BGC.Users;
-using BGC.Study;
+using BGC.IO;
 using BGC.Audio;
 
 public class SystemInitializer : MonoBehaviour
@@ -44,6 +44,11 @@ public class SystemInitializer : MonoBehaviour
         initialized = true;
 
         Application.logMessageReceived += LogManager.HandleLog;
+
+        if (!DataManagement.DataDirectoryExists("HRTF"))
+        {
+            Debug.LogError("Hey, Dummy!  You gotta run the Splashscreen Scene at least once to extract the HRTF Files!");
+        }
 
         IEnumerator initializationProcess = RunInitialization();
 

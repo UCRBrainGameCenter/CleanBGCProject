@@ -83,8 +83,6 @@ public class SettingsMenu : ModePanel
 
     SettingBase currentlyEditingValue = null;
 
-    private const string enterValuePrompt = "Enter Value for ";
-
     private string currentlyEditingValueTitle = "";
 
     private UIState currentState = UIState.SettingsMenu;
@@ -133,9 +131,6 @@ public class SettingsMenu : ModePanel
         ConstructButtons();
     }
 
-    void Start()
-    {
-    }
 
     #region ModePanel
 
@@ -439,7 +434,7 @@ public class SettingsMenu : ModePanel
     {
         currentState = state;
 
-        valueLabel.text = $"{enterValuePrompt}{currentlyEditingValueTitle}:";
+        valueLabel.text = $"Enter Value for {currentlyEditingValueTitle}:";
         bool settingsVisible = (state == UIState.SettingsMenu);
 
         valueField.gameObject.SetActive(state == UIState.EnterValue);

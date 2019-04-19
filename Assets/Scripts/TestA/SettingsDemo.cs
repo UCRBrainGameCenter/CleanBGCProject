@@ -57,7 +57,7 @@ namespace TestA
 
         private TestAClickChannel clickChannel = null;
         private TestALerpChannel saveDataChannel = null;
-        private List<TestALerpChannel> messAroundLerpChannels = new List<TestALerpChannel>(5);
+        private readonly List<TestALerpChannel> messAroundLerpChannels = new List<TestALerpChannel>(5);
         private DepletableBag<RectTransform> driftableFrames = null;
 
         public int EntryCount
