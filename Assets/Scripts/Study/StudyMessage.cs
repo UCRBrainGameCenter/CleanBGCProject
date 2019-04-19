@@ -1,6 +1,6 @@
-﻿using UnityEngine.UI;
+﻿using System;
 using UnityEngine;
-using BGC.Study;
+using UnityEngine.UI;
 using BGC.UI.Panels;
 
 public class StudyMessage : ModePanel

@@ -8,10 +8,14 @@ using BGC.Mathematics;
 using BGC.Audio;
 using BGC.Audio.Filters;
 
+/// <summary>
+/// Note!  This implementation was quick and dirty because it was an internal test/demo scene.
+/// See PART for procedural UI generation based on Reflection and Custom Attributes
+/// </summary>
 public class FilterSelector : MonoBehaviour
 {
     [SerializeField]
-    private Dropdown filterDropdown;
+    private Dropdown filterDropdown = null;
 
     [SerializeField]
     private Text unsupportedText = null;

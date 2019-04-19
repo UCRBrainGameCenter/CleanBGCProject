@@ -17,7 +17,6 @@ public class SettingsInnerPanel : ModePanel
     [SerializeField]
     private UserIDMenu userIDMenu = null;
 
-
     [Header("Settings Menu Tab Buttons")]
     [SerializeField]
     private Button generalSettingsButton = null;

@@ -2,12 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using BGC.Users;
-using BGC.Study;
-using BGC.Utility;
-using BGC.Web;
-using BGC.MonoUtility;
-using BGC.UI.Dialogs;
 using BGC.UI.Panels;
 using TestA;
 

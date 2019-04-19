@@ -33,8 +33,6 @@ public enum AnotherSerializedEnum
     MAX
 }
 
-
-
 public static class Serialization
 {
     private static bool initialized = false;

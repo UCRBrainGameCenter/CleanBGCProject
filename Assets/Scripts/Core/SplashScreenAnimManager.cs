@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using BGC.Utility;
-using BGC.Users;
 using BGC.MonoUtility.Interpolation;
 
 public class SplashScreenAnimManager : MonoBehaviour

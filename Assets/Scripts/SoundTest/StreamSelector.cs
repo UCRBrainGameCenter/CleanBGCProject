@@ -7,7 +7,6 @@ using UnityEngine.UI;
 using LightJson;
 using BGC.IO;
 using BGC.Audio;
-using BGC.Audio.Filters;
 using BGC.Audio.Synthesis;
 
 public class StreamSelector : MonoBehaviour
@@ -166,8 +165,9 @@ public class StreamSelector : MonoBehaviour
             case StreamType.TriangleWave:
             case StreamType.SquareWave:
             case StreamType.WAVFile:
-                //it's good, keep gpoing
+                //it's good, keep going
                 break;
+
             default:
                 //Reinit
                 StreamChanged((int)StreamType.SineWave);

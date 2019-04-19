@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Fill in the second set of UV's of a slice9 texture with the unscaled UV values.
+/// Used by the SpriteGradient shader applied to buttons.
+/// </summary>
 public class FillUVs : BaseMeshEffect
 {
     private readonly List<UIVertex> vertList = new List<UIVertex>();
-
 
     public override void ModifyMesh(VertexHelper vh)
     {
