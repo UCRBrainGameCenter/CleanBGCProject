@@ -7,7 +7,7 @@ namespace TestB
     /// <summary>
     /// InterTrialInterval state - the delay between trials
     /// </summary>
-    public class ITIState : State
+    public class ITIState : TriggeringState<StateTrigger>
     {
         protected override string DefaultName => "ITIState";
         protected readonly ITestBMessenger messenger;
@@ -25,7 +25,7 @@ namespace TestB
         {
             if (Time.time > endTime)
             {
-                ActivateTrigger(StateKeys.NextStateTrigger);
+                ActivateTrigger(StateTrigger.NextState);
             }
         }
     }

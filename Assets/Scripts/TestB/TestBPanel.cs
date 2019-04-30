@@ -50,7 +50,7 @@ public class TestBPanel : ModePanel, ITestBMessenger
     private Vector2 panelSize;
     private Vector2 buttonSize;
 
-    private StateMachine gameStateMachine;
+    private StateMachine<StateBool, StateTrigger> gameStateMachine;
 
     private bool playerResponded = false;
     private int hits = 0;
@@ -107,7 +107,7 @@ public class TestBPanel : ModePanel, ITestBMessenger
         panelSize = panelRectTransform.rect.size;
         buttonSize = buttonRectTransform.rect.size;
 
-        gameStateMachine.ActivateTriggerImmediate(StateKeys.NextStateTrigger);
+        gameStateMachine.ActivateTriggerImmediate(StateTrigger.NextState);
     }
 
     public override void FocusLost()
@@ -124,7 +124,7 @@ public class TestBPanel : ModePanel, ITestBMessenger
     private void QuitTask()
     {
         //Kill State Machine
-        gameStateMachine.ActivateTriggerImmediate(StateKeys.QuitGameTrigger);
+        gameStateMachine.ActivateTriggerImmediate(StateTrigger.NextState);
         menuManager.PopWindowState();
     }
 
@@ -194,35 +194,35 @@ public class TestBPanel : ModePanel, ITestBMessenger
 
     private bool IsTaskComplete() => hits + misses >= 10;
 
-    private static StateMachine ConstructStateMachine(ITestBMessenger messenger)
+    private static StateMachine<StateBool, StateTrigger> ConstructStateMachine(ITestBMessenger messenger)
     {
-        StateMachine stateMachine = new StateMachine(true);
+        StateMachine<StateBool, StateTrigger> stateMachine = new StateMachine<StateBool, StateTrigger>(true);
 
         State gameInitState = new LambdaState(
             name: "GameInitState",
             onStateEnter: messenger.HideTrialButton);
 
-        State gamePrepState = new TriggeringLambdaState(
+        State gamePrepState = new TriggeringLambdaState<StateTrigger>(
             name: "GamePrepState",
             onStateEnter: () =>
             {
                 messenger.ResetData();
-                return StateKeys.NextStateTrigger;
+                return StateTrigger.NextState;
             });
 
-        State itiState = new ITIState(messenger);
-        State responseWindowState = new ResponseWindowState(messenger);
+        ITIState itiState = new ITIState(messenger);
+        ResponseWindowState responseWindowState = new ResponseWindowState(messenger);
 
-        State progressControlState = new TriggeringLambdaState(
+        State progressControlState = new TriggeringLambdaState<StateTrigger>(
             name: "ProgressControlState",
             onStateEnter: () =>
             {
                 if (messenger.IsTaskComplete())
                 {
-                    return StateKeys.FinishedTrigger;
+                    return StateTrigger.Finished;
                 }
 
-                return StateKeys.NextStateTrigger;
+                return StateTrigger.NextState;
             });
 
         State completedState = new LambdaState(
@@ -230,20 +230,20 @@ public class TestBPanel : ModePanel, ITestBMessenger
             onStateEnter: () => messenger.SetCompletedScreen(true),
             onStateExit: () => messenger.SetCompletedScreen(false));
 
-        State restartState = new TriggeringLambdaState(
+        State restartState = new TriggeringLambdaState<StateTrigger>(
             name: "RestartState",
             onStateEnter: () =>
             {
                 PlayerData.Save();
-                return StateKeys.NextStateTrigger;
+                return StateTrigger.NextState;
             });
 
-        State quitState = new TriggeringLambdaState(
+        State quitState = new TriggeringLambdaState<StateTrigger>(
             name: "QuitState",
             onStateEnter: () =>
             {
                 PlayerData.Save();
-                return StateKeys.NextStateTrigger;
+                return StateTrigger.NextState;
             });
 
         stateMachine.AddEntryState(gameInitState);
@@ -262,42 +262,42 @@ public class TestBPanel : ModePanel, ITestBMessenger
         stateMachine.AddTransition(
             fromState: gameInitState,
             targetState: gamePrepState,
-            new TriggerCondition(StateKeys.NextStateTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         stateMachine.AddTransition(
             fromState: gamePrepState,
             targetState: itiState,
-            new TriggerCondition(StateKeys.NextStateTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         stateMachine.AddTransition(
             fromState: responseWindowState,
             targetState: itiState,
-            new TriggerCondition(StateKeys.NextStateTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         stateMachine.AddTransition(
             fromState: itiState,
             targetState: progressControlState,
-            new TriggerCondition(StateKeys.NextStateTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         stateMachine.AddTransition(
             fromState: progressControlState,
             targetState: responseWindowState,
-            new TriggerCondition(StateKeys.NextStateTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         stateMachine.AddTransition(
             fromState: progressControlState,
             targetState: completedState,
-            new TriggerCondition(StateKeys.FinishedTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         stateMachine.AddTransition(
             fromState: restartState,
             targetState: gamePrepState,
-            new TriggerCondition(StateKeys.NextStateTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         stateMachine.AddTransition(
             fromState: quitState,
             targetState: gameInitState,
-            new TriggerCondition(StateKeys.NextStateTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.NextState));
 
         //
         // Any State Transitions
@@ -305,11 +305,11 @@ public class TestBPanel : ModePanel, ITestBMessenger
 
         stateMachine.AddAnyStateTransition(
             restartState,
-            new TriggerCondition(StateKeys.RestartGameTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.Restart));
 
         stateMachine.AddAnyStateTransition(
             quitState,
-            new TriggerCondition(StateKeys.QuitGameTrigger));
+            stateMachine.CreateTriggerCondition(StateTrigger.Quit));
 
         return stateMachine;
     }
@@ -319,7 +319,7 @@ public class TestBPanel : ModePanel, ITestBMessenger
     private void GameButtonClicked() => playerResponded = true;
 
     private void RestartTaskClicked() =>
-        gameStateMachine.ActivateTriggerImmediate(StateKeys.RestartGameTrigger);
+        gameStateMachine.ActivateTriggerImmediate(StateTrigger.Restart);
 
     private void QuitTaskClicked()
     {

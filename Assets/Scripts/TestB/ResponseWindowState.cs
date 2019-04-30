@@ -2,7 +2,7 @@
 
 namespace TestB
 {
-    public class ResponseWindowState : State
+    public class ResponseWindowState : TriggeringState<StateTrigger>
     {
         protected override string DefaultName => "ResponseWindowState";
         protected readonly ITestBMessenger messenger;
@@ -32,12 +32,12 @@ namespace TestB
             if (messenger.PlayerResponded)
             {
                 messenger.SubmitTrial(true);
-                ActivateTrigger(StateKeys.NextStateTrigger);
+                ActivateTrigger(StateTrigger.NextState);
             }
             else if (UnityEngine.Time.time > timeOutTime)
             {
                 messenger.SubmitTrial(false);
-                ActivateTrigger(StateKeys.NextStateTrigger);
+                ActivateTrigger(StateTrigger.NextState);
             }
         }
     }
