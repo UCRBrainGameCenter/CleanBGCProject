@@ -67,7 +67,7 @@ public class SoundTest : MonoBehaviour
     private void Save()
     {
         string defaultFilePath = DataManagement.PathForDataFile("TestStimuli", $"{titleInput.text}.json");
-        string filePath = DataManagement.NextAvailableFilePath(defaultFilePath);
+        string filePath = FilePath.NextAvailableFilePath(defaultFilePath);
 
         FileWriter.WriteJson(
             path: filePath,

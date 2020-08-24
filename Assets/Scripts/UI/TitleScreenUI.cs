@@ -82,7 +82,7 @@ public class TitleScreenUI : ModePanel
 
     public override void FocusAcquired()
     {
-        settingsButton.gameObject.SetActive(!PlayerData.IsLocked);
+        settingsButton.gameObject.SetActive(!PlayerData.GlobalData.IsLocked);
 
         PlayerData.Save();
     }

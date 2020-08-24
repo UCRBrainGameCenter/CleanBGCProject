@@ -110,7 +110,7 @@ public class StreamSelector : MonoBehaviour
             case StreamType.SineWave: return new SineWave(1.0f, Frequency);
             case StreamType.SawtoothWave: return new SawtoothWave(1.0f, Frequency);
             case StreamType.TriangleWave: return new TriangleWave(1.0f, Frequency, DutyCycle);
-            case StreamType.SquareWave: return new SquareWave(1.0f, Frequency, DutyCycle);
+            case StreamType.SquareWave: return new SquareWave(1.0f, Frequency, 0.0, DutyCycle);
             case StreamType.WAVFile:
                 if (WaveEncoding.LoadBGCStream(FileName, out IBGCStream stream))
                 {

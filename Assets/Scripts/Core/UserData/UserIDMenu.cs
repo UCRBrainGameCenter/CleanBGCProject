@@ -137,7 +137,7 @@ public class UserIDMenu : ModePanel
 
     private void UpdateUI()
     {
-        bool bLocked = PlayerData.IsLocked;
+        bool bLocked = PlayerData.GlobalData.IsLocked;
 
         //Only show delete button if we're setting them active and the user exists
         foreach (UserButton userButton in userButtons.Values)

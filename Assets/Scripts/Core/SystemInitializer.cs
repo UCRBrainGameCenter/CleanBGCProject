@@ -69,10 +69,10 @@ public class SystemInitializer : MonoBehaviour
 #endif
 
         //Unlock account for first-time users
-        if (!PlayerData.EverUnlocked)
+        if (!PlayerData.GlobalData.EverUnlocked)
         {
             Debug.LogWarning("First Run Detected - Unlocking for demo purposes");
-            PlayerData.IsLocked = false;
+            PlayerData.GlobalData.IsLocked = false;
         }
 
         try

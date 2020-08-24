@@ -89,7 +89,7 @@ public class SettingsInnerPanel : ModePanel
 
     protected void LockPressed()
     {
-        if (PlayerData.IsLocked)
+        if (PlayerData.GlobalData.IsLocked)
         {
             ModalDialog.ShowInputModal(
                 mode: ModalDialog.Mode.InputConfirmCancel,
@@ -101,7 +101,7 @@ public class SettingsInnerPanel : ModePanel
         }
         else
         {
-            PlayerData.IsLocked = true;
+            PlayerData.GlobalData.IsLocked = true;
 
             switch (currentMode)
             {
@@ -129,7 +129,7 @@ public class SettingsInnerPanel : ModePanel
             case ModalDialog.Response.Confirm:
                 if (input == "3141")
                 {
-                    PlayerData.IsLocked = false;
+                    PlayerData.GlobalData.IsLocked = false;
                 }
                 else
                 {
@@ -191,7 +191,7 @@ public class SettingsInnerPanel : ModePanel
     {
         currentMode = mode;
 
-        lockButton.GetComponentInChildren<Text>().text = PlayerData.IsLocked ? "Unlock" : "Lock";
+        lockButton.GetComponentInChildren<Text>().text = PlayerData.GlobalData.IsLocked ? "Unlock" : "Lock";
 
         lockButton.interactable =
             mode == SettingPanelMode.General ||
@@ -247,7 +247,7 @@ public class SettingsInnerPanel : ModePanel
                 return TabButtonState.Enabled;
 
             case SettingPanelMode.UserSelect:
-                if (PlayerData.IsDefault || !PlayerData.IsLocked)
+                if (PlayerData.IsDefault || !PlayerData.GlobalData.IsLocked)
                 {
                     return flashOn ? TabButtonState.Flashing : TabButtonState.Enabled;
                 }

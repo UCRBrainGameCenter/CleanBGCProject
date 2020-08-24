@@ -267,7 +267,7 @@ public class FilterSelector : MonoBehaviour
                     stream: input,
                     function: Windowing.Function.Hamming,
                     smoothingSamples: IntA,
-                    sampleOffset: IntB);
+                    sampleShift: IntB);
 
             case FilterType.StreamWindower_Explicit:
                 return new StreamWindower(
@@ -275,7 +275,7 @@ public class FilterSelector : MonoBehaviour
                     function: Windowing.Function.Hamming,
                     totalDuration: FloatA,
                     smoothingSamples: IntA,
-                    sampleOffset: IntB);
+                    sampleShift: IntB);
 
             case FilterType.UpChannelMono:
                 return new UpChannelMonoFilter(

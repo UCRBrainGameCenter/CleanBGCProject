@@ -457,7 +457,7 @@ public class SettingsMenu : ModePanel
                 setting.SettingWidget.SetActive(GetSettingActive(setting.name));
 
                 //Set the interactable setting based on current lock state
-                setting.SettingModifyButton.interactable = setting.GetModifiable(PlayerData.IsLocked);
+                setting.SettingModifyButton.interactable = setting.GetModifiable(PlayerData.GlobalData.IsLocked);
                 if (setting.NameNeedsUpdate() || allSettingsDirty)
                 {
                     setting.ApplyValuesToButton();
