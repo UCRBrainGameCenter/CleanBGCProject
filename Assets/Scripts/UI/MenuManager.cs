@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using BGC.UI.Panels;
+using BGC.UI.Dialogs;
 using TestA;
 
 public class MenuManager : MonoBehaviour
@@ -20,6 +21,8 @@ public class MenuManager : MonoBehaviour
     private TestBPanel testBPanel = null;
     [SerializeField]
     private StudyMessage messageMenu = null;
+    [SerializeField]
+    private ModalDialog modalDialog = null;
 
     public enum WindowState
     {
@@ -37,6 +40,7 @@ public class MenuManager : MonoBehaviour
 
     void Awake()
     {
+        modalDialog.Initialize();
         GetComponent<RectMask2D>().enabled = true;
     }
 
