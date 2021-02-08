@@ -129,5 +129,8 @@ public abstract class HarmonicBase : IBGCStream
     void IBGCStream.Seek(int position) => stream.Seek(position);
     IEnumerable<double> IBGCStream.GetChannelRMS() => stream.GetChannelRMS();
 
+    //No resources to dispose
+    public void Dispose() { }
+
     #endregion IBGCStream
 }

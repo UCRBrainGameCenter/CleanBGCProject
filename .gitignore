@@ -35,6 +35,7 @@ ver.txt
 *.user
 *.unityproj
 *.booproj
+.vsconfig
 ==============
 
 # OS Generated Files and Directories
